@@ -1,0 +1,62 @@
+{
+  "source": "FORM BARUUUUUUUUUUUUUU.pdf",
+  "total": 6,
+  "elements": [
+    {
+      "no": 1,
+      "tag": "IfcColumn",
+      "instance": "1961",
+      "definition": "3nDwqBbXLEpuWKHeK1MmfD",
+      "deskripsi": "",
+      "keterangan": "A"
+    },
+    {
+      "no": 2,
+      "tag": "IfcMember",
+      "instance": "2868",
+      "definition": "1rGl77LYb90vJx$jx08aJ5",
+      "deskripsi": "",
+      "keterangan": "B"
+    },
+    {
+      "no": 3,
+      "tag": "IfcBeam",
+      "instance": "1185",
+      "definition": "1fuDPSffLBUB3S8noLoc5Z",
+      "deskripsi": "",
+      "keterangan": "C"
+    },
+    {
+      "no": 4,
+      "tag": "IfcBeam",
+      "instance": "3100",
+      "definition": "0HR4qaxD1B6hW5MGV27X2t",
+      "deskripsi": "",
+      "keterangan": "D"
+    },
+    {
+      "no": 5,
+      "tag": "IfcColumn",
+      "instance": "2912",
+      "definition": "3zYpTZea1B4xeV9ezDkuAA",
+      "deskripsi": "",
+      "keterangan": "E"
+    },
+    {
+      "no": 6,
+      "tag": "IfcBeam",
+      "instance": "39",
+      "definition": "2x175mvgb8eO0gVJiQ3qCq",
+      "deskripsi": "",
+      "keterangan": "A"
+    }
+  ],
+  "globalid_map": {
+    "3nDwqBbXLEpuWKHeK1MmfD": "1961",
+    "1rGl77LYb90vJx$jx08aJ5": "2868",
+    "1fuDPSffLBUB3S8noLoc5Z": "1185",
+    "0HR4qaxD1B6hW5MGV27X2t": "3100",
+    "3zYpTZea1B4xeV9ezDkuAA": "2912",
+    "2x175mvgb8eO0gVJiQ3qCq": "39"
+  }
+}

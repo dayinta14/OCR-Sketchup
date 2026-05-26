@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Inspeksi Struktur Otomatis — Petrokimia Gresik</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e3a5f;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --yellow: #eab308;
+    --orange: #f97316;
+    --red: #ef4444;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ─── SLIDES ─── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 80px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+  .slide.prev {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ─── SLIDE 1: TITLE ─── */
+  .s1-logo {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent2);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .s1-title {
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1.1;
+    text-align: center;
+    background: linear-gradient(135deg, #e2e8f0 0%, #3b82f6 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+  .s1-sub {
+    font-size: 20px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .s1-tags {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tag {
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid;
+  }
+  .tag-blue { border-color: var(--accent); color: var(--accent); background: #3b82f610; }
+  .tag-cyan { border-color: var(--accent2); color: var(--accent2); background: #06b6d410; }
+  .tag-green { border-color: var(--green); color: var(--green); background: #22c55e10; }
+
+  /* ─── SLIDE 2: PROBLEM ─── */
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .slide-title {
+    font-size: 38px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .slide-desc {
+    font-size: 17px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 48px;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+  .cards-row {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+  }
+  .card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .card-icon { font-size: 32px; margin-bottom: 14px; }
+  .card-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .card-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ─── SLIDE 3: INPUT ─── */
+  .pdf-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 40px;
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .pdf-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 4px 0 0 4px;
+  }
+  .pdf-box.inspeksi::before { background: var(--blue); }
+  .pdf-box.sketchup::before { background: var(--accent2); }
+  .pdf-icon { font-size: 40px; }
+  .pdf-info { flex: 1; }
+  .pdf-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .pdf-label.blue { color: var(--blue); }
+  .pdf-label.cyan { color: var(--accent2); }
+  .pdf-name { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .pdf-desc { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .pdf-cols { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .col-chip {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* ─── SLIDE 4: FLOW ─── */
+  .flow-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 1000px;
+  }
+  .flow-step {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+  }
+  .flow-step .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800;
+    margin: 0 auto 12px;
+  }
+  .flow-step .step-icon { font-size: 28px; margin-bottom: 10px; }
+  .flow-step .step-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .flow-step .step-file { font-size: 11px; color: var(--accent2); font-family: monospace; margin-bottom: 6px; }
+  .flow-step .step-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .flow-arrow {
+    color: var(--accent);
+    font-size: 24px;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* ─── SLIDE 5: OUTPUT COLORS ─── */
+  .colors-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 32px;
+  }
+  .color-card {
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+    border: 1px solid;
+  }
+  .color-dot {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+  }
+  .color-kat { font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+  .color-label { font-size: 13px; font-weight: 600; }
+  .color-sub { font-size: 11px; margin-top: 4px; opacity: 0.7; }
+
+  .result-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 32px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+  .result-item { text-align: center; }
+  .result-num { font-size: 36px; font-weight: 900; color: var(--accent); }
+  .result-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ─── SLIDE 6: DEMO ─── */
+  .demo-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 700px;
+  }
+  .demo-step {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 24px;
+  }
+  .demo-num {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .demo-text { flex: 1; }
+  .demo-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .demo-detail { font-size: 13px; color: var(--muted); font-family: monospace; }
+  .demo-icon { font-size: 24px; }
+
+  /* ─── NAVIGATION ─── */
+  .nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 12px 24px;
+  }
+  .nav-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .nav-dots { display: flex; gap: 8px; }
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+
+  .slide-counter {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  /* ─── BG DECORATION ─── */
+  .bg-glow {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .glow1 { width: 400px; height: 400px; background: #3b82f620; top: -100px; left: -100px; }
+  .glow2 { width: 300px; height: 300px; background: #06b6d415; bottom: -50px; right: -50px; }
+</style>
+</head>
+<body>
+
+<div class="bg-glow glow1"></div>
+<div class="bg-glow glow2"></div>
+<div class="slide-counter" id="counter">1 / 6</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 1 — TITLE
+════════════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="s1-logo">PT Petrokimia Gresik</div>
+  <h1 class="s1-title">Sistem Inspeksi Struktur<br>Berbasis Model 3D Otomatis</h1>
+  <p class="s1-sub">Otomatisasi pembacaan form PDF → pewarnaan elemen SketchUp<br>sesuai hasil kondisi inspeksi lapangan</p>
+  <div class="s1-tags">
+    <span class="tag tag-blue">PDF Parsing</span>
+    <span class="tag tag-cyan">IFC Mapping</span>
+    <span class="tag tag-green">SketchUp Automation</span>
+    <span class="tag tag-blue">Python + Ruby</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 2 — MASALAH & SOLUSI
+════════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="section-label">Latar Belakang</div>
+  <h2 class="slide-title">Masalah & Solusi</h2>
+  <p class="slide-desc">Proses inspeksi struktur selama ini dilakukan manual — data di kertas/PDF tidak terhubung langsung dengan model 3D.</p>
+  <div class="cards-row">
+    <div class="card">
+      <div class="card-icon">📋</div>
+      <div class="card-title">Masalah Lama</div>
+      <div class="card-desc">Inspektor mengisi form manual. Hasilnya disimpan di PDF. Tim engineer harus membuka PDF satu per satu untuk tahu kondisi tiap elemen struktur.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Solusi Baru</div>
+      <div class="card-desc">Sistem membaca PDF secara otomatis dan langsung mewarnai model 3D SketchUp sesuai kondisi inspeksi — merah, kuning, hijau, dst.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <div class="card-title">Hasil</div>
+      <div class="card-desc">Engineer bisa langsung melihat kondisi seluruh struktur dari model 3D — tanpa perlu buka satu per satu form inspeksi.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 3 — INPUT: DUA PDF
+════════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="section-label">Input Sistem</div>
+  <h2 class="slide-title">Dua File PDF sebagai Input</h2>
+  <p class="slide-desc">Sistem membaca dua jenis form PDF yang berbeda</p>
+
+  <div class="pdf-box inspeksi">
+    <div class="pdf-icon">📄</div>
+    <div class="pdf-info">
+      <div class="pdf-label blue">Form Inspeksi Struktur</div>
+      <div class="pdf-name">FORM FINALL.pdf</div>
+      <div class="pdf-desc">Form yang diisi inspektor di lapangan. Berisi penilaian kondisi setiap elemen struktur.</div>
+      <div class="pdf-cols">
+        <span class="col-chip">No. Elemen</span>
+        <span class="col-chip">Deskripsi</span>
+        <span class="col-chip">Kategori A–E</span>
+        <span class="col-chip">Catatan</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdf-box sketchup">
+    <div class="pdf-icon">🏗️</div>
+    <div class="pdf-info">
+      <div class="pdf-label cyan">Form Mapping SketchUp IFC</div>
+      <div class="pdf-name">FORM BARUUUUUUUUUUUUUU.pdf</div>
+      <div class="pdf-desc">Form yang menghubungkan elemen model 3D dengan nomor elemen di form inspeksi.</div>
+      <div class="pdf-cols">
+        <span class="col-chip">IFC Type</span>
+        <span class="col-chip">Instance ID</span>
+        <span class="col-chip">GlobalId</span>
+        <span class="col-chip">Keterangan</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 4 — ALUR PROSES
+════════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="section-label">Cara Kerja</div>
+  <h2 class="slide-title">Alur Otomatisasi</h2>
+  <p class="slide-desc" style="margin-bottom:32px">Cukup double-click satu file — semua proses berjalan otomatis</p>
+
+  <div class="flow-wrap">
+    <div class="flow-step">
+      <div class="step-icon">📄</div>
+      <div class="step-num">1</div>
+      <div class="step-title">Baca Form Inspeksi</div>
+      <div class="step-file">run_ocr_json copy.py</div>
+      <div class="step-desc">OCR membaca form inspeksi, ekstrak kondisi A–E tiap elemen</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">🗺️</div>
+      <div class="step-num">2</div>
+      <div class="step-title">Baca Form SketchUp</div>
+      <div class="step-file">parse_sketchup_ifc.py</div>
+      <div class="step-desc">Baca mapping IFC dan gabungkan dengan hasil inspeksi</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">📊</div>
+      <div class="step-num">3</div>
+      <div class="step-title">Simpan ke JSON</div>
+      <div class="step-file">hasil_sketchup_ifc.json</div>
+      <div class="step-desc">Data terstruktur siap dipakai untuk pewarnaan model 3D</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">🎨</div>
+      <div class="step-num">4</div>
+      <div class="step-title">Warnai Model 3D</div>
+      <div class="step-file">update_colors_from_ocr.rb</div>
+      <div class="step-desc">Script Ruby di SketchUp warnai elemen sesuai kondisi inspeksi</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 5 — OUTPUT: WARNA
+════════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="section-label">Output</div>
+  <h2 class="slide-title">Sistem Kode Warna Kondisi</h2>
+  <p class="slide-desc" style="margin-bottom:32px">Setiap elemen di model 3D diwarnai otomatis sesuai kategori hasil inspeksi</p>
+
+  <div class="colors-grid">
+    <div class="color-card" style="border-color:#22c55e40; background:#22c55e08">
+      <div class="color-dot" style="background:#22c55e"></div>
+      <div class="color-kat" style="color:#22c55e">A</div>
+      <div class="color-label">Baik</div>
+      <div class="color-sub" style="color:#22c55e">Good</div>
+    </div>
+    <div class="color-card" style="border-color:#3b82f640; background:#3b82f608">
+      <div class="color-dot" style="background:#3b82f6"></div>
+      <div class="color-kat" style="color:#3b82f6">B</div>
+      <div class="color-label">Perhatian</div>
+      <div class="color-sub" style="color:#3b82f6">Monitor</div>
+    </div>
+    <div class="color-card" style="border-color:#eab30840; background:#eab30808">
+      <div class="color-dot" style="background:#eab308"></div>
+      <div class="color-kat" style="color:#eab308">C</div>
+      <div class="color-label">Sedang</div>
+      <div class="color-sub" style="color:#eab308">Fair</div>
+    </div>
+    <div class="color-card" style="border-color:#f9731640; background:#f9731608">
+      <div class="color-dot" style="background:#f97316"></div>
+      <div class="color-kat" style="color:#f97316">D</div>
+      <div class="color-label">Buruk</div>
+      <div class="color-sub" style="color:#f97316">Poor</div>
+    </div>
+    <div class="color-card" style="border-color:#ef444440; background:#ef444408">
+      <div class="color-dot" style="background:#ef4444"></div>
+      <div class="color-kat" style="color:#ef4444">E</div>
+      <div class="color-label">Kritis</div>
+      <div class="color-sub" style="color:#ef4444">Critical</div>
+    </div>
+  </div>
+
+  <div class="result-box">
+    <div class="result-item">
+      <div class="result-num">6</div>
+      <div class="result-label">Elemen Terdeteksi</div>
+    </div>
+    <div style="width:1px;height:40px;background:var(--border)"></div>
+    <div class="result-item">
+      <div class="result-num">100%</div>
+      <div class="result-label">Akurasi Pembacaan</div>
+    </div>
+    <div style="width:1px;height:40px;background:var(--border)"></div>
+    <div class="result-item">
+      <div class="result-num">&lt;30s</div>
+      <div class="result-label">Waktu Proses</div>
+    </div>
+    <div style="width:1px;height:40px;background:var(--border)"></div>
+    <div class="result-item">
+      <div class="result-num">0</div>
+      <div class="result-label">Input Manual</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 6 — CARA PAKAI
+════════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="section-label">Panduan Penggunaan</div>
+  <h2 class="slide-title">Cara Pakai — 3 Langkah</h2>
+  <p class="slide-desc" style="margin-bottom:32px">Setiap kali ada form inspeksi baru, cukup ikuti 3 langkah ini</p>
+
+  <div class="demo-flow">
+    <div class="demo-step">
+      <div class="demo-num">1</div>
+      <div class="demo-text">
+        <div class="demo-title">Taruh PDF baru di folder, lalu double-click reset_dan_run.bat</div>
+        <div class="demo-detail">→ Otomatis baca PDF + simpan hasil ke JSON</div>
+      </div>
+      <div class="demo-icon">🖱️</div>
+    </div>
+    <div class="demo-step">
+      <div class="demo-num">2</div>
+      <div class="demo-text">
+        <div class="demo-title">Buka SketchUp → Extensions → Ruby Console</div>
+        <div class="demo-detail">load "...path.../update_colors_from_ocr.rb"</div>
+      </div>
+      <div class="demo-icon">💻</div>
+    </div>
+    <div class="demo-step">
+      <div class="demo-num">3</div>
+      <div class="demo-text">
+        <div class="demo-title">Model 3D otomatis diwarnai sesuai kondisi inspeksi</div>
+        <div class="demo-detail">View → Face Style → Shaded with Textures jika warna belum muncul</div>
+      </div>
+      <div class="demo-icon">🎨</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════ -->
+<div class="nav">
+  <button class="nav-btn" onclick="prev()">‹</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" onclick="next()">›</button>
+</div>
+
+<script>
+  const total = 6;
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dotsEl = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goto(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goto(n) {
+    slides[cur].className = 'slide prev';
+    cur = (n + total) % total;
+    slides[cur].className = 'slide active';
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.className = 'nav-dot' + (i === cur ? ' active' : '');
+    });
+    counter.textContent = (cur + 1) + ' / ' + total;
+  }
+
+  function next() { goto(cur + 1); }
+  function prev() { goto(cur - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') next();
+    if (e.key === 'ArrowLeft') prev();
+  });
+</script>
+</body>
+</html>
